@@ -129,8 +129,10 @@ Yat.TerminalScreen {
                         screen.selection.sendToSelection();
                     }
                 }
-                /*TODO >> Pointhandler is not a full replacement of onPointChanged*/
-                PointHandler: /*onPointChanged:*/ if (active) { 
+               
+            PointHandler{
+                acceptedDevices: PointerDevice.Cursor
+                onPointChanged: if (active) {
                     var character = Math.floor(point.position.x / fontWidth);
                     var line = Math.floor(point.position.y / fontHeight);
                     var current_pos = Qt.point(character,line);
@@ -146,6 +148,8 @@ Yat.TerminalScreen {
                         screen.selection.endY = line;
                     }
                 }
+            }
+                
             }
 
             TapHandler {
