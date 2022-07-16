@@ -32,7 +32,6 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.2
-//import Qt.labs.handlers 1.0
 import Yat 1.0 as Yat
 
 Yat.TerminalScreen {
