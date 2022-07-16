@@ -21,9 +21,9 @@
 *
 *******************************************************************************/
 
-import QtQuick 2.10
+import QtQuick 2.13
 import QtQuick.Controls 2.2
-import Qt.labs.handlers 1.0
+import QtQuick.Window 2.2
 import Yat 1.0 as Yat
 
 Yat.TerminalScreen {
@@ -33,7 +33,7 @@ Yat.TerminalScreen {
     property real fontWidth: fontMetricText.paintedWidth
     property real fontHeight: fontMetricText.paintedHeight
 
-    font.family: screen.platformName != "cocoa" ? "monospace" : "menlo"
+    font.family: screen.platformName !== "cocoa" ? "monospace" : "menlo"
     anchors.fill: parent
     focus: true
 
@@ -129,7 +129,8 @@ Yat.TerminalScreen {
                         screen.selection.sendToSelection();
                     }
                 }
-                onPointChanged: if (active) {
+                /*TODO >> Pointhandler is not a full replacement of onPointChanged*/
+                PointHandler: /*onPointChanged:*/ if (active) { 
                     var character = Math.floor(point.position.x / fontWidth);
                     var line = Math.floor(point.position.y / fontHeight);
                     var current_pos = Qt.point(character,line);
