@@ -28,6 +28,7 @@
 #include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquicktextnode_p.h>
 #include <QtGui/QTextLayout>
+#include <QLinkedList>
 
 class MonoSGNode : public QSGTransformNode
 {
