@@ -7,6 +7,15 @@
 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 * copies of the Software, and to permit persons to whom the Software is
 * furnished to do so, subject to the following conditions:
+/*******************************************************************************
+* Copyright (c) 2013 Jørgen Lind
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
 *
 * The above copyright notice and this permission notice shall be included in all
 * copies or substantial portions of the Software.
@@ -21,14 +30,24 @@
 *
 *******************************************************************************/
 
-import QtQuick 2.13
+import QtQuick 2.15
 import QtQuick.Controls 2.2
-import QtQuick.Window 2.2
+//import Qt.labs.handlers 1.0
 import Yat 1.0 as Yat
 
 Yat.TerminalScreen {
     id: screenItem
 
+
+    function setManualTerminalWidth() {
+        if (connections.fontWidth > 0 && screenItem.isWidthAutoEnable) {
+            var pty_width = Math.floor(connections.width / connections.fontWidth);
+            flickable.width = pty_width * connections.fontWidth;
+            screen.width = pty_width;
+        }
+    }
+
+    property bool isWidthAutoEnable: true
     property font font
     property real fontWidth: fontMetricText.paintedWidth
     property real fontHeight: fontMetricText.paintedHeight
@@ -113,23 +132,39 @@ Yat.TerminalScreen {
             }
 
             DragHandler {
+                id: handler
                 target: null
                 acceptedDevices: PointerDevice.Mouse
                 property int drag_start_x
                 property int drag_start_y
                 onActiveChanged: {
+                    console.log(active)
+
+                    drag_start_x = Math.floor(handler.centroid.position.x / fontWidth);
+                    drag_start_y = Math.floor(handler.centroid.position.y / fontHeight);
+
+                    console.log(drag_start_x)
+                    console.log(drag_start_y)
                     if (active) {
-                        drag_start_x = Math.floor((point.pressPosition.x / fontWidth));
-                        drag_start_y = Math.floor(point.pressPosition.y / fontHeight);
-                        screen.selection.startX = drag_start_x;
-                        screen.selection.startY = drag_start_y;
+
                         screen.selection.endX = drag_start_x;
                         screen.selection.endY = drag_start_y;
+
+                        screen.selection.startX = drag_start_x;
+                        screen.selection.startY = drag_start_y;
+
                     } else {
+                        screen.selection.endX = drag_start_x;
+                        screen.selection.endY = drag_start_y;
                         screen.selection.sendToSelection();
                     }
                 }
-               
+
+
+
+
+            }
+
             PointHandler{
                 acceptedDevices: PointerDevice.Cursor
                 onPointChanged: if (active) {
@@ -149,8 +184,9 @@ Yat.TerminalScreen {
                     }
                 }
             }
-                
-            }
+
+
+
 
             TapHandler {
                 acceptedButtons: Qt.MiddleButton
@@ -210,8 +246,10 @@ Yat.TerminalScreen {
                 });
         }
 
+
+
         onCursorCreated: {
-            if (cursorComponent.status != Component.Ready) {
+            if (cursorComponent.status !== Component.Ready) {
                 console.log(cursorComponent.errorString());
                 return;
             }
@@ -240,17 +278,19 @@ Yat.TerminalScreen {
         setTerminalWidth();
     }
 
+
     onWidthChanged: setTerminalWidth();
 
     onHeightChanged: setTerminalHeight();
 
     function setTerminalWidth() {
-        if (fontWidth > 0) {
+        if (fontWidth > 0 && screenItem.isWidthAutoEnable) {
             var pty_width = Math.floor(width / fontWidth);
             flickable.width = pty_width * fontWidth;
             screen.width = pty_width;
         }
     }
+
 
     function setTerminalHeight() {
         if (fontHeight > 0) {
@@ -259,7 +299,6 @@ Yat.TerminalScreen {
             screen.height = pty_height;
         }
     }
-
     Rectangle {
         id: flash
         z: 1.2
